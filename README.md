@@ -6,4 +6,4 @@ A simple word processor based on HTML and Markdown.
 - Save documents in HTML format.
 - Export as `*.pdf`.
 
-Made by RESISTANCER a freshman, who's **HELLA MAD** at `Hancom Office Hangul`
+Made by `RESISTANCER` a freshman, who's **HELLA MAD** at `Hancom Office Hangul`

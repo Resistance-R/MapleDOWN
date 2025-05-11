@@ -116,4 +116,24 @@ function HandleOverflowRecursively(page_div, depth = 0) {
     HandleOverflowRecursively(next_page, depth + 1);
 }
 
-export { SplitTextByHeight, HandleOverflowRecursively };
+function HandlePasting()
+{
+    /**
+     * [WARN!] this function performs an undo on paste to preserve the document formatting.
+     * code `document.execCommand("undo");` undo the DOM automatically.
+     * 
+     * this is currently the simplest and most reliable way to work, but `execCommand()' is deprecated.
+     * so, that is likely to be removed from browsers in the future.
+     */
+    
+    InsertCursorMarker()
+
+    setTimeout(() => {
+        document.execCommand("undo");
+        HandleOverflowRecursively(page_div);
+    }, 20);
+
+    RestoreCursorToMarker()
+}
+
+export { SplitTextByHeight, HandleOverflowRecursively, HandlePasting };

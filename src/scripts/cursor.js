@@ -39,6 +39,8 @@ function RestoreCursorToMarker() {
     selection.removeAllRanges();
     selection.addRange(range);
 
+    marker.scrollIntoView({ behavior: "smooth", block: "center" }); //smooth scroll the page that cursor is
+
     //remove marker
     marker.remove();
 }

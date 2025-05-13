@@ -48,4 +48,12 @@ html, body{
   box-shadow: 0 0 5px rgba(0, 0, 0, 0.2);
   border: none;
   outline: none;
+
+  line-height: 1.5;
+}
+
+.page br{
+  content: "";
+  display: block;
+  height: 1.5em;
 }

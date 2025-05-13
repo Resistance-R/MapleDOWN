@@ -1,5 +1,12 @@
 /* remember and restore cursor */
 
+/* The principe of memorize cursor position:
+    1. get user's cursor position
+    2. insert the HTML tag: `<span id="cursor-marker">` at that position
+    3. modify HTML
+    4. find tag: `<span>`
+    5. remove tag: `<span>` */
+
 function InsertCursorMarker() {
     const selection = window.getSelection();
 

@@ -60,19 +60,20 @@ function CreateAndAppendPage()
     return new_page_element;
 }
 
+// 이거 필요한가?
 function AddPage() //function for adding page when page overflowed
 {
     //inspecting overflow "pages-area" evey inputs
-        document.getElementById("pages-area").addEventListener("input", (event) => {
-            const curtent_page = event.target;
+    document.getElementById("pages-area").addEventListener("input", (event) => {
+        const curtent_page = event.target;
         
-            //if overflow, add one page
-            if (curtent_page.scrollHeight > curtent_page.clientHeight)
-            {
-                const new_page_element = CreateAndAppendPage();
+        //if overflow, add one page
+        if (curtent_page.scrollHeight > curtent_page.clientHeight)
+        {
+            const new_page_element = CreateAndAppendPage();
 
-                MoveCursorToPage(new_page_element, true);
-            }
+            MoveCursorToPage(new_page_element, true);
+        }
     });
 }
 

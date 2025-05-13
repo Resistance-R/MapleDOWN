@@ -6,81 +6,61 @@ import { CreateAndAppendPage } from './pages.js';
 /* about text overflowing */
 /* 생각
     1. 중간에 텍스트가 삽입되었는데, 텍스트가 페이지에서 넘치면
-        -> 넘친 텍스트가 다음 페이지로 옮겨가기 <- 이거 하다가 커서가 위로 올라가는 문제 발견. 해결 요함.
-                                            (아마도 커서 위치 기억하면 될 것 같긴 한데)
-
+        -> 넘친 텍스트가 다음 페이지로 옮겨가기 (done)
     2. 중간에 텍스트가 제거되었는데, 텍스트가 이전 페이지로 돌아 갈 수 있으면
         -> 텍스트가 이전 페이지로 돌아가기
             -> 텍스트가 이전 페이지로 돌아갔는데, 페이지에 어떠한 텍스트도 없으면 페이지 삭제 */
 
-/* The principe of memorize cursor position:
-    1. get user's cursor position
-    2. insert the HTML tag: `<span id="cursor-marker">` at that position
-    3. modify HTML
-    4. find tag: `<span>`
-    5. remove tag: `<span>` */
-
-function SplitTextByHeight(page_div) {
+function SplitTextByHeight(page_div)
+{
     InsertCursorMarker();
 
-    //save full HTML include `marker`
-    const original_text = page_div.innerHTML;
-
     const marker_element = document.getElementById("cursor-marker");
-    const marker_html = marker_element?.outerHTML || "";
-    const marker_start = original_text.indexOf(marker_html);
-
-
-    if (marker_start === -1) {
-        console.warn("marker not found! fallback to original behavior.");
+    if (!marker_element) {
+        console.warn("No cursor marker found. Aborting split.");
         return "";
     }
 
-    //set range for binary search
-    let low = marker_start + marker_html.length;;
-    let high = original_text.length;
+    //step 1: copy all
+    const full_clone = page_div.cloneNode(true);
 
-    //value for the best cut point
-    let best_fit = '';
+    //step 2: finding the state with the most childNodes with binary search
+    const original_nodes = Array.from(full_clone.childNodes);
+    let low = 0;
+    let high = original_nodes.length;
+    let best_index = -1;
 
-    let last_valid_mid = -1;
-
-    //binary search: search the best point that able to include text
     while (low <= high) {
-        const mid = Math.floor((low + high) / 2); //calculate middle point
-        page_div.innerHTML = original_text.slice(0, mid); //cut to length of `mid` and try to add on the page
+        const mid = Math.floor((low + high) / 2);
+        page_div.innerHTML = ""; //initialize
+        for (let i = 0; i < mid; i++) {
+            page_div.appendChild(original_nodes[i].cloneNode(true));
+        }
 
-        //not overflowed(== able to try more text)
-        if (page_div.scrollHeight <= page_div.clientHeight) {
-            best_fit = original_text.slice(0, mid); //text save
-            last_valid_mid = mid;
+        if (page_div.scrollHeight <= page_div.clientHeight + 1) {
+            best_index = mid;
             low = mid + 1;
-        }
-
-        //overflowed
-        else {
-            high = mid - 1; //too long; try shorter
+        } else {
+            high = mid - 1;
         }
     }
 
-    //calculate overflowed text(== from backward of `best_fit` to end of text)
-    const overflow_text = original_text.slice(best_fit.length);
-
-    if (
-        last_valid_mid === -1 ||
-        overflow_text.trim() === "" ||
-        overflow_text.length > original_text.length * 0.95 // 95% 이상 그대로?
-    ) {
-        console.warn("Split failed or ineffective; skipping overflow handling");
-        return "";
+    //step 3: making up complete page
+    page_div.innerHTML = "";
+    for (let i = 0; i < best_index; i++) {
+        page_div.appendChild(original_nodes[i].cloneNode(true));
     }
-
-    //remain cut text in current page
-    page_div.innerHTML = best_fit;
 
     RestoreCursorToMarker();
 
-    // return overflowed text -> to use to move next page
+    //Step 4: split overflow text
+    let overflow_text = "";
+    for (let i = best_index; i < original_nodes.length; i++) {
+        const wrapper = document.createElement("div");
+        wrapper.appendChild(original_nodes[i].cloneNode(true));
+        overflow_text += wrapper.innerHTML;
+    }
+
     return overflow_text;
 }
 
